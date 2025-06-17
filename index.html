@@ -530,12 +530,12 @@
                         
                         if (!isActive) {
                             // Start call
-                            isLoading = true;
-                            customButton.className = 'custom-vapi-button loading';
-                            customButton.innerHTML = `
-                                <i class="fas fa-robot robot-icon loading"></i>
-                                <span>Connecting...</span>
-                            `;
+                            // isLoading = true;
+                            // customButton.className = 'custom-vapi-button loading';
+                            // customButton.innerHTML = `
+                            //     <i class="fas fa-robot robot-icon loading"></i>
+                            //     <span>Connecting...</span>
+                            // `;
                             
                             if (vapiInstance && vapiInstance.start) {
                                 vapiInstance.start();
