@@ -459,28 +459,29 @@
         const assistant = "7e4d7726-a28f-4889-85ea-e2f965580a77";
         const apiKey = "ebdb7e1f-571e-4b5d-a94d-e02fc46212e9";
         const buttonConfig = {
-    offset: "40px",
-    width: "200px",
-    height: "50px",
-   idle: {
-    color: "linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)",
-    type: "pill",
-    title: "Start Interview",
-    subtitle: "Begin your session"
-},
-    loading: {
-        color: `linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%)`,
-        type: "pill",
-        title: "Connecting...",
-        subtitle: "Please wait",
-    },
-    active: {
-        color: `linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)`,
-        type: "pill",
-        title: "End Interview",
-        subtitle: "Stop the session",
-    },
-};
+            offset: "40px",
+            width: "200px", // Adjusted to fit icon and text better, you might need to tweak this
+            height: "50px",
+            idle: {
+                color: "linear-gradient(135deg, #2ecc71 0%, #27ae60 100%)",
+                type: "pill",
+                // MODIFIED LINE: Added Font Awesome icon HTML to the title
+                title: '<i class="fas fa-robot" style="margin-right: 8px; vertical-align: middle;"></i>Start Interview',
+                subtitle: "Begin your session"
+            },
+            loading: {
+                color: `linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%)`,
+                type: "pill",
+                title: "Connecting...",
+                subtitle: "Please wait",
+            },
+            active: {
+                color: `linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)`,
+                type: "pill",
+                title: "End Interview",
+                subtitle: "Stop the session",
+            },
+        };
 
         const timerElement = document.querySelector('.timer');
         const interviewStatus = document.querySelector('.interview-status');
@@ -495,128 +496,117 @@
         let isMuted = false;
 
         (function (d, t) {
-    const g = document.createElement(t),
-          s = d.getElementsByTagName(t)[0];
-    g.src = "https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js";
-    g.defer = true;
-    g.async = true;
-    s.parentNode.insertBefore(g, s);
-    
-    g.onload = function () {
-        try {
-            vapiInstance = window.vapiSDK.run({
-                apiKey: apiKey,
-                assistant: assistant,
-                config: buttonConfig,
-            });
-
-            // Create custom button if VAPI button doesn't render properly
-            setTimeout(() => {
-                const vapiButton = document.querySelector('[data-vapi-button]');
-                const buttonContainer = document.querySelector('.button-container');
-                
-                if (!vapiButton || vapiButton.style.display === 'none') {
-                    // Create custom button
-                    const customButton = document.createElement('button');
-                    customButton.className = 'custom-vapi-button idle';
-                    customButton.innerHTML = `
-                        <i class="fas fa-robot robot-icon"></i>
-                        <span>Click the button below — real prep starts with mocks</span>
-                    `;
-                    
-                    let isActive = false;
-                    let isLoading = false;
-                    
-                    customButton.addEventListener('click', () => {
-                        if (isLoading) return;
-                        
-                        if (!isActive) {
-                            // Start call
-                            // isLoading = true;
-                            // customButton.className = 'custom-vapi-button loading';
-                            // customButton.innerHTML = `
-                            //     <i class="fas fa-robot robot-icon loading"></i>
-                            //     <span>Connecting...</span>
-                            // `;
-                            
-                            if (vapiInstance && vapiInstance.start) {
-                                vapiInstance.start();
-                            }
-                        } else {
-                            // End call
-                            if (vapiInstance && vapiInstance.stop) {
-                                vapiInstance.stop();
-                            }
-                        }
+            const g = document.createElement(t),
+                  s = d.getElementsByTagName(t)[0];
+            g.src = "https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js";
+            g.defer = true;
+            g.async = true;
+            s.parentNode.insertBefore(g, s);
+            
+            g.onload = function () {
+                try {
+                    vapiInstance = window.vapiSDK.run({
+                        apiKey: apiKey,
+                        assistant: assistant,
+                        config: buttonConfig,
                     });
-                    
-                    // Update button state based on VAPI events
-                    const updateButtonState = (state) => {
-                        isLoading = false;
-                        if (state === 'active') {
-                            isActive = true;
-                            customButton.className = 'custom-vapi-button active';
-                            customButton.innerHTML = `
-                                <i class="fas fa-robot robot-icon"></i>
-                                <span>End Interview</span>
-                            `;
-                        } else {
-                            isActive = false;
+
+                    // Create custom button if VAPI button doesn't render properly
+                    setTimeout(() => {
+                        const vapiButton = document.querySelector('[data-vapi-button]');
+                        const buttonContainer = document.querySelector('.button-container');
+                        
+                        if (!vapiButton || vapiButton.style.display === 'none') {
+                            // Create custom button
+                            const customButton = document.createElement('button');
                             customButton.className = 'custom-vapi-button idle';
                             customButton.innerHTML = `
                                 <i class="fas fa-robot robot-icon"></i>
                                 <span>Click the button below — real prep starts with mocks</span>
                             `;
+                            
+                            let isActive = false;
+                            let isLoading = false;
+                            
+                            customButton.addEventListener('click', () => {
+                                if (isLoading) return;
+                                
+                                if (!isActive) {
+                                    if (vapiInstance && vapiInstance.start) {
+                                        vapiInstance.start();
+                                    }
+                                } else {
+                                    if (vapiInstance && vapiInstance.stop) {
+                                        vapiInstance.stop();
+                                    }
+                                }
+                            });
+                            
+                            const updateButtonState = (state) => {
+                                isLoading = false;
+                                if (state === 'active') {
+                                    isActive = true;
+                                    customButton.className = 'custom-vapi-button active';
+                                    customButton.innerHTML = `
+                                        <i class="fas fa-robot robot-icon"></i>
+                                        <span>End Interview</span>
+                                    `;
+                                } else {
+                                    isActive = false;
+                                    customButton.className = 'custom-vapi-button idle';
+                                    customButton.innerHTML = `
+                                        <i class="fas fa-robot robot-icon"></i>
+                                        <span>Click the button below — real prep starts with mocks</span>
+                                    `;
+                                }
+                            };
+                            
+                            buttonContainer.appendChild(customButton);
+                            
+                            vapiInstance.on('call-start', () => updateButtonState('active'));
+                            vapiInstance.on('call-end', () => updateButtonState('idle'));
+                            
+                        } else {
+                            vapiButton.setAttribute('aria-label', 'Start or end interview');
+                            buttonContainer.appendChild(vapiButton);
                         }
-                    };
-                    
-                    buttonContainer.appendChild(customButton);
-                    
-                    // Listen for VAPI events to update button
-                    vapiInstance.on('call-start', () => updateButtonState('active'));
-                    vapiInstance.on('call-end', () => updateButtonState('idle'));
-                    
-                } else {
-                    vapiButton.setAttribute('aria-label', 'Start or end interview');
-                    buttonContainer.appendChild(vapiButton);
+                    }, 1000);
+
+                    vapiInstance.on('call-start', () => {
+                        startTimer();
+                        updateInterviewStatus('active');
+                    });
+
+                    vapiInstance.on('call-end', () => {
+                        stopTimer();
+                        updateInterviewStatus('ended');
+                    });
+
+                    vapiInstance.on('volume-level', (volume) => {
+                        updateAudioVisualizer('user', volume);
+                    });
+
+                    vapiInstance.on('speech-start', () => {
+                        updateInterviewerSpeaking(true);
+                    });
+
+                    vapiInstance.on('speech-end', () => {
+                        updateInterviewerSpeaking(false);
+                    });
+
+                    vapiInstance.on('error', (error) => {
+                        console.error('VAPI Error:', error);
+                    });
+
+                } catch (error) {
+                    console.error('Error initializing VAPI:', error);
                 }
-            }, 1000);
+            };
 
-            vapiInstance.on('call-start', () => {
-                startTimer();
-                updateInterviewStatus('active');
-            });
-
-            vapiInstance.on('call-end', () => {
-                stopTimer();
-                updateInterviewStatus('ended');
-            });
-
-            vapiInstance.on('volume-level', (volume) => {
-                updateAudioVisualizer('user', volume);
-            });
-
-            vapiInstance.on('speech-start', () => {
-                updateInterviewerSpeaking(true);
-            });
-
-            vapiInstance.on('speech-end', () => {
-                updateInterviewerSpeaking(false);
-            });
-
-            vapiInstance.on('error', (error) => {
-                console.error('VAPI Error:', error);
-            });
-
-        } catch (error) {
-            console.error('Error initializing VAPI:', error);
-        }
-    };
-
-    g.onerror = function() {
-        console.error('Failed to load VAPI SDK');
-    };
-})(document, "script");
+            g.onerror = function() {
+                console.error('Failed to load VAPI SDK');
+            };
+        })(document, "script");
 
         muteBtn.addEventListener('click', toggleMute);
 
