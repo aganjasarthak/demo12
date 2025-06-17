@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Mock Interviewer - Professional Interview Practice</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2d3748;
+        }
+
+        .logo i {
+            color: #667eea;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .interview-room {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 1000px;
+            min-height: 600px;
+        }
+
+        .room-header {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .room-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .room-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #48bb78;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .video-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            padding: 2rem;
+            min-height: 400px;
+        }
+
+        .video-panels {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .video-panel {
+            background: #1a202c;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            flex: 1 1 45%;
+            max-width: 45%;
+            min-height: 200px;
+        }
+
+        .interviewer-panel {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+        }
+
+        .candidate-panel {
+            background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%);
+            border: 2px solid #667eea;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1rem;
+            height: 60px;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .avatar.speaking {
+            animation: speaking 1s ease-in-out infinite alternate;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.6);
+        }
+
+        @keyframes speaking {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        .panel-label {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .panel-status {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .controls-container {
+            padding: 2rem;
+            background: #f7fafc;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .interview-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .control-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 150px;
+            justify-content: center;
+        }
+
+        .control-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+        }
+
+        .start-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(72, 187, 120, 0.3);
+        }
+
+        .start-btn.connecting {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        }
+
+        .end-btn {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            color: white;
+        }
+
+        .end-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(245, 101, 101, 0.3);
+        }
+
+        .mute-btn {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            color: white;
+        }
+
+        .mute-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(237, 137, 54, 0.3);
+        }
+
+        .mute-btn.muted {
+            background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+        }
+
+        .retry-btn {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+        }
+
+        .retry-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(66, 153, 225, 0.3);
+        }
+
+        .interview-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #667eea;
+        }
+
+        .info-card h3 {
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .info-card p {
+            color: #718096;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .status-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .recording-indicator {
+            background: rgba(245, 101, 101, 0.9);
+        }
+
+        .waiting-indicator {
+            background: rgba(237, 137, 54, 0.9);
+        }
+
+        .active-indicator {
+            background: rgba(72, 187, 120, 0.9);
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .audio-visualizer {
+            position: absolute;
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 2px;
+            align-items: end;
+            height: 30px;
+        }
+
+        .audio-bar {
+            width: 3px;
+            background: #667eea;
+            border-radius: 2px;
+            transition: height 0.1s ease;
+            height: 5px;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .video-panels {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .video-panel {
+                flex: 1 1 100%;
+                max-width: 100%;
+            }
+
+            .interview-controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .control-btn {
+                width: 100%;
+                max-width: 250px;
+            }
+
+            .header-content {
+                padding: 0 1rem;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(72, 187, 120, 0.95);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+        }
+
+        .notification.error {
+            background: rgba(245, 101, 101, 0.95);
+        }
+
+        .notification.warning {
+            background: rgba(237, 137, 54, 0.95);
+        }
+
+        [data-vapi-button] {
+            z-index: 10 !important;
+            border-radius: 50px !important;
+            font-weight: 600 !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+            transition: all 0.3s ease !important;
+            position: relative !important;
+            width: 200px;
+        }
+
+        [data-vapi-button]:hover {
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
+        }
+
+        .vapi-ready .control-btn.start-btn {
+            display: none !important;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="connection-status" class="connection-status">
+        <i class="fas fa-circle" style="color: #ed8936;"></i>
+        <span>Loading AI System...</span>
+    </div>
+
+    <div id="notification" class="notification"></div>
+    <div id="vapi-hint" class="vapi-hint">Click here to start/end interview</div>
+    <div id="status-announcer" aria-live="polite" class="sr-only"></div>
+
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <i class="fas fa-user-tie"></i>
+                <span>AI Mock Interviewer</span>
+            </div>
+            <div class="room-status">
+                <div class="status-dot"></div>
+                <span id="header-status">Loading AI System...</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="interview-room">
+            <div class="room-header">
+                <div class="room-title">
+                    <i class="fas fa-video"></i>
+                    Professional Interview Session
+                </div>
+                <div class="room-status">
+                    <span id="session-timer">00:00</span>
+                </div>
+            </div>
+
+            <div class="video-container">
+                <div class="video-panels">
+                    <div class="video-panel interviewer-panel">
+                        <div class="status-indicator waiting-indicator" id="interviewer-status">
+                            <i class="fas fa-robot"></i>
+                            <span>AI Interviewer Loading...</span>
+                        </div>
+                        <div class="avatar" id="ai-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="panel-label">AI Interviewer</div>
+                        <div class="panel-status">Professional Interview Assistant</div>
+                        <div class="audio-visualizer hidden" id="ai-visualizer">
+                            <div class="audio-bar"></div>
+                            <div class="audio-bar"></div>
+                            <div class="audio-bar"></div>
+                            <div class="audio-bar"></div>
+                            <div class="audio-bar"></div>
+                        </div>
+                    </div>
+
+                    <div class="video-panel candidate-panel">
+                        <div class="status-indicator waiting-indicator" id="candidate-status">
+                            <i class="fas fa-user"></i>
+                            <span>You (Candidate)</span>
+                        </div>
+                        <div class="avatar" id="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="panel-label">Interview Candidate</div>
+                        <div class="panel-status">Ready for Interview</div>
+                        <div class="audio-visualizer hidden" id="user-visualizer">
+                            <div class="audio-bar"></div>
+                            <div class="audio-bar"></div>
+                            <div class="audio-bar"></div>
+                            <div class="audio-bar"></div>
+                            <div class="audio-bar"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-container"></div>
+            </div>
+
+            <div class="controls-container">
+                <div class="interview-controls">
+                    <button class="control-btn start-btn" id="start-interview" disabled>
+                        <div class="spinner"></div>
+                        Loading AI System...
+                    </button>
+                    <button class="control-btn mute-btn hidden" id="mute-btn">
+                        <i class="fas fa-microphone"></i>
+                        Mute
+                    </button>
+                    <button class="control-btn end-btn hidden" id="end-interview">
+                        <i class="fas fa-stop"></i>
+                        End Interview
+                    </button>
+                    <button class="control-btn retry-btn hidden" id="retry-btn">
+                        <i class="fas fa-sync"></i>
+                        Retry Connection
+                    </button>
+                </div>
+
+                <div class="interview-info">
+                    <div class="info-card">
+                        <h3><i class="fas fa-lightbulb"></i> Interview Tips</h3>
+                        <p>Speak clearly, maintain good posture, and take your time to think before answering. The AI will ask relevant questions based on your responses.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3><i class="fas fa-clock"></i> Session Info</h3>
+                        <p>This is a practice interview session. You can end the interview at any time. The AI will provide feedback and suggestions for improvement.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3><i class="fas fa-shield-alt"></i> Privacy</h3>
+                        <p>Your interview session is secure and private. Audio is processed in real-time and not stored permanently on our servers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialization
+        const assistant = "7e4d7726-a28f-4889-85ea-e2f965580a77";
+        const apiKey = "ebdb7e1f-571e-4b5d-a94d-e02fc46212e9";
+        const buttonConfig = {
+            offset: "40px",
+            width: "200px",
+            height: "50px",
+            idle: {
+                color: `linear-gradient(135deg, #48bb78 0%, #38a169 100%)`,
+                type: "pill",
+                title: "🎤 Start Interview",
+                subtitle: "Click to begin",
+                icon: `https://unpkg.com/lucide@latest/dist/esm/icons/play.js`,
+            },
+            loading: {
+                color: `linear-gradient(135deg, #ed8936 0%, #dd6b20 100%)`,
+                type: "pill",
+                title: "Connecting...",
+                subtitle: "Please wait",
+                icon: `https://unpkg.com/lucide@latest/dist/esm/icons/loader-2.js`,
+            },
+            active: {
+                color: `linear-gradient(135deg, #f56565 0%, #e53e3e 100%)`,
+                type: "pill",
+                title: "🛑 End Interview",
+                subtitle: "Click to stop",
+                icon: `https://unpkg.com/lucide@latest/dist/esm/icons/square.js`,
+            },
+        };
+
+        // UI Elements
+        const startBtn = document.getElementById('start-interview');
+        const endBtn = document.getElementById('end-interview');
+        const muteBtn = document.getElementById('mute-btn');
+        const retryBtn = document.getElementById('retry-btn');
+        const interviewerStatus = document.getElementById('interviewer-status');
+        const candidateStatus = document.getElementById('candidate-status');
+        const sessionTimer = document.getElementById('session-timer');
+        const connectionStatus = document.getElementById('connection-status');
+        const headerStatus = document.getElementById('header-status');
+        const notification = document.getElementById('notification');
+        const vapiHint = document.getElementById('vapi-hint');
+        const aiAvatar = document.getElementById('ai-avatar');
+        const userAvatar = document.getElementById('user-avatar');
+        const statusAnnouncer = document.getElementById('status-announcer');
+
+        // State Variables
+        let vapiInstance = null;
+        let timerInterval;
+        let startTime;
+        let isMuted = false;
+        let isInterviewActive = false;
+
+        // Vapi Initialization
+        (function (d, t) {
+            const g = document.createElement(t),
+                  s = d.getElementsByTagName(t)[0];
+            g.src = "https://cdn.jsdelivr.net/gh/VapiAI/html-script-tag@latest/dist/assets/index.js";
+            g.defer = true;
+            g.async = true;
+            s.parentNode.insertBefore(g, s);
+            
+            g.onload = function () {
+                try {
+                    vapiInstance = window.vapiSDK.run({
+                        apiKey: apiKey,
+                        assistant: assistant,
+                        config: buttonConfig,
+                    });
+
+                    const vapiButton = document.querySelector('[data-vapi-button]');
+                    if (vapiButton) {
+                        vapiButton.setAttribute('aria-label', 'Start or end interview');
+                        const buttonContainer = document.querySelector('.button-container');
+                        buttonContainer.appendChild(vapiButton);
+                    }
+
+                    document.body.classList.add('vapi-ready');
+                    updateConnectionStatus('connected', 'AI System Ready');
+                    updateHeaderStatus('Ready to Interview');
+                    showNotification('AI Interview System Ready! Click the button above to begin.', 'success');
+                    announceStatus('AI Interview System Ready');
+
+                    // Vapi Event Handlers
+                    vapiInstance.on('call-start', () => {
+                        updateInterviewStatus('active');
+                        startTimer();
+                        showNotification('Interview Started - Good Luck!', 'success');
+                        announceStatus('Interview has started');
+                        hideVapiHint();
+                    });
+
+                    vapiInstance.on('call-end', () => {
+                        updateInterviewStatus('ended');
+                        stopTimer();
+                        showNotification('Interview Completed Successfully!', 'success');
+                        announceStatus('Interview has ended');
+                    });
+
+                    vapiInstance.on('volume-level', (volume) => {
+                        updateAudioVisualizer('user', volume);
+                    });
+
+                    vapiInstance.on('error', (error) => {
+                        console.error('VAPI Error:', error);
+                        updateInterviewStatus('error');
+                        updateConnectionStatus('error', 'Connection Error');
+                        showNotification('Connection error occurred. Please try again.', 'error');
+                        announceStatus('Connection error occurred');
+                        enableStartButton();
+                    });
+
+                    vapiInstance.on('speech-start', () => {
+                        updateInterviewerSpeaking(true);
+                    });
+
+                    vapiInstance.on('speech-end', () => {
+                        updateInterviewerSpeaking(false);
+                    });
+
+                } catch (error) {
+                    console.error('Error initializing VAPI:', error);
+                    updateConnectionStatus('error', 'Initialization Failed');
+                    updateHeaderStatus('System Error');
+                    showNotification('Failed to initialize AI system. Please refresh the page.', 'error');
+                    announceStatus('Failed to initialize AI system');
+                    retryBtn.classList.remove('hidden');
+                }
+            };
+
+            g.onerror = function() {
+                console.error('Failed to load VAPI SDK');
+                updateConnectionStatus('error', 'SDK Load Failed');
+                updateHeaderStatus('System Error');
+                showNotification('Failed to load AI system. Please refresh the page.', 'error');
+                announceStatus('Failed to load AI system');
+                retryBtn.classList.remove('hidden');
+            };
+        })(document, "script");
+
+        // Event Listeners
+        startBtn.addEventListener('click', startInterview);
+        endBtn.addEventListener('click', endInterview);
+        muteBtn.addEventListener('click', toggleMute);
+        retryBtn.addEventListener('click', () => {
+            location.reload();
+            showNotification('Retrying connection...', 'success');
+            announceStatus('Retrying connection');
+        });
+
+        window.addEventListener('online', () => {
+            showNotification('Internet connection restored', 'success');
+            announceStatus('Internet connection restored');
+            if (!isInterviewActive) {
+                retryBtn.classList.add('hidden');
+            }
+        });
+
+        window.addEventListener('offline', () => {
+            showNotification('Internet connection lost', 'error');
+            announceStatus('Internet connection lost');
+            if (isInterviewActive) {
+                endInterview();
+            }
+        });
+
+        // UI Update Functions
+        function startInterview() {
+            showNotification('Use the interview button above to start!', 'success');
+            announceStatus('Use the interview button above to start');
+        }
+
+        function endInterview() {
+            const vapiButton = document.querySelector('[data-vapi-button]');
+            if (vapiButton && isInterviewActive) {
+                vapiButton.click();
+                showNotification('Ending interview...', 'success');
+                announceStatus('Ending interview');
+            } else {
+                updateInterviewStatus('ended');
+                stopTimer();
+            }
+        }
+
+        function toggleMute() {
+            if (!vapiInstance || !isInterviewActive) {
+                showNotification('No active interview to mute', 'warning');
+                announceStatus('No active interview to mute');
+                return;
+            }
+
+            try {
+                if (isMuted) {
+                    vapiInstance.unmute();
+                    muteBtn.innerHTML = '<i class="fas fa-microphone"></i> Mute';
+                    muteBtn.classList.remove('muted');
+                    isMuted = false;
+                    showNotification('Microphone unmuted', 'success');
+                    announceStatus('Microphone unmuted');
+                } else {
+                    vapiInstance.mute();
+                    muteBtn.innerHTML = '<i class="fas fa-microphone-slash"></i> Unmute';
+                    muteBtn.classList.add('muted');
+                    isMuted = true;
+                    showNotification('Microphone muted', 'success');
+                    announceStatus('Microphone muted');
+                }
+            } catch (error) {
+                console.error('Error toggling mute:', error);
+                showNotification('Failed to toggle microphone', 'error');
+                announceStatus('Failed to toggle microphone');
+            }
+        }
+
+        function updateInterviewStatus(status) {
+            switch(status) {
+                case 'active':
+                    startBtn.classList.add('hidden');
+                    endBtn.classList.remove('hidden');
+                    muteBtn.classList.remove('hidden');
+                    retryBtn.classList.add('hidden');
+                    interviewerStatus.className = 'status-indicator recording-indicator';
+                    interviewerStatus.innerHTML = '<i class="fas fa-circle"></i><span>Interview Active</span>';
+                    candidateStatus.className = 'status-indicator recording-indicator';
+                    candidateStatus.innerHTML = '<i class="fas fa-circle"></i><span>Recording</span>';
+                    document.getElementById('ai-visualizer').classList.remove('hidden');
+                    document.getElementById('user-visualizer').classList.remove('hidden');
+                    updateConnectionStatus('connected', 'Interview Active');
+                    updateHeaderStatus('Interview in Progress');
+                    isInterviewActive = true;
+                    break;
+                case 'ended':
+                    enableStartButton();
+                    endBtn.classList.add('hidden');
+                    muteBtn.classList.add('hidden');
+                    retryBtn.classList.add('hidden');
+                    interviewerStatus.className = 'status-indicator waiting-indicator';
+                    interviewerStatus.innerHTML = '<i class="fas fa-check"></i><span>Interview Complete</span>';
+                    candidateStatus.className = 'status-indicator waiting-indicator';
+                    candidateStatus.innerHTML = '<i class="fas fa-check"></i><span>Session Ended</span>';
+                    document.getElementById('ai-visualizer').classList.add('hidden');
+                    document.getElementById('user-visualizer').classList.add('hidden');
+                    aiAvatar.classList.remove('speaking');
+                    userAvatar.classList.remove('speaking');
+                    muteBtn.innerHTML = '<i class="fas fa-microphone"></i> Mute';
+                    muteBtn.classList.remove('muted');
+                    isMuted = false;
+                    isInterviewActive = false;
+                    updateConnectionStatus('connected', 'AI System Ready');
+                    updateHeaderStatus('Ready for Next Interview');
+                    break;
+                case 'error':
+                    enableStartButton();
+                    endBtn.classList.add('hidden');
+                    muteBtn.classList.add('hidden');
+                    retryBtn.classList.remove('hidden');
+                    interviewerStatus.className = 'status-indicator';
+                    interviewerStatus.style.background = 'rgba(245, 101, 101, 0.9)';
+                    interviewerStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>Connection Error</span>';
+                    candidateStatus.className = 'status-indicator waiting-indicator';
+                    candidateStatus.innerHTML = '<i class="fas fa-user"></i><span>Ready to Retry</span>';
+                    document.getElementById('ai-visualizer').classList.add('hidden');
+                    document.getElementById('user-visualizer').classList.add('hidden');
+                    aiAvatar.classList.remove('speaking');
+                    userAvatar.classList.remove('speaking');
+                    isInterviewActive = false;
+                    updateHeaderStatus('Connection Error - Ready to Retry');
+                    break;
+            }
+        }
+
+        function enableStartButton() {
+            startBtn.classList.remove('hidden', 'connecting');
+            startBtn.disabled = false;
+            startBtn.innerHTML = '<i class="fas fa-play"></i> Start Interview';
+        }
+
+        function updateConnectionStatus(status, message) {
+            const statusIcon = connectionStatus.querySelector('i');
+            const statusText = connectionStatus.querySelector('span');
+            switch(status) {
+                case 'connected':
+                    statusIcon.style.color = '#48bb78';
+                    statusIcon.className = 'fas fa-circle';
+                    break;
+                case 'connecting':
+                    statusIcon.style.color = '#ed8936';
+                    statusIcon.className = 'fas fa-spinner fa-spin';
+                    break;
+                case 'error':
+                    statusIcon.style.color = '#f56565';
+                    statusIcon.className = 'fas fa-exclamation-circle';
+                    break;
+            }
+            statusText.textContent = message;
+        }
+
+        function updateHeaderStatus(message) {
+            headerStatus.textContent = message;
+        }
+
+        function announceStatus(message) {
+            statusAnnouncer.textContent = message;
+        }
+
+        function showNotification(message, type = 'success') {
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            announceStatus(message);
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        function hideVapiHint() {
+            vapiHint.classList.remove('show');
+        }
+
+        function updateInterviewerSpeaking(isSpeaking) {
+            if (isSpeaking) {
+                interviewerStatus.innerHTML = '<i class="fas fa-volume-up"></i><span>AI Speaking</span>';
+                aiAvatar.classList.add('speaking');
+                animateAudioVisualizer('ai-visualizer', true);
+            } else {
+                interviewerStatus.innerHTML = '<i class="fas fa-microphone"></i><span>AI Listening</span>';
+                aiAvatar.classList.remove('speaking');
+                animateAudioVisualizer('ai-visualizer', false);
+            }
+        }
+
+        function updateAudioVisualizer(type, volume) {
+            const visualizer = document.getElementById(type === 'user' ? 'user-visualizer' : 'ai-visualizer');
+            if (!visualizer || visualizer.classList.contains('hidden')) return;
+            const bars = visualizer.querySelectorAll('.audio-bar');
+            bars.forEach((bar, index) => {
+                const height = Math.random() * (volume || 0.5) * 20 + 5;
+                bar.style.height = `${Math.min(height, 25)}px`;
+            });
+            if (type === 'user' && volume > 0.1) {
+                userAvatar.classList.add('speaking');
+                setTimeout(() => userAvatar.classList.remove('speaking'), 200);
+            }
+        }
+
+        function animateAudioVisualizer(visualizerId, animate) {
+            const visualizer = document.getElementById(visualizerId);
+            if (!visualizer) return;
+            const bars = visualizer.querySelectorAll('.audio-bar');
+            if (animate) {
+                bars.forEach((bar, index) => {
+                    const interval = setInterval(() => {
+                        if (!animate || visualizer.classList.contains('hidden')) {
+                            clearInterval(interval);
+                            bar.style.height = '5px';
+                            return;
+                        }
+                        const height = Math.random() * 20 + 5;
+                        bar.style.height = `${height}px`;
+                    }, 100 + index * 50);
+                });
+            } else {
+                bars.forEach(bar => {
+                    bar.style.height = '5px';
+                });
+            }
+        }
+
+        function startTimer() {
+            startTime = Date.now();
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function updateTimer() {
+            if (startTime) {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                sessionTimer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+        }
+
+        // Initial Setup
+        document.addEventListener('DOMContentLoaded', () => {
+            const interviewRoom = document.querySelector('.interview-room');
+            interviewRoom.classList.add('fade-in');
+            updateConnectionStatus('connecting', 'Loading AI System...');
+            updateHeaderStatus('Loading AI System...');
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && isInterviewActive) {
+                showNotification('Keep this tab active during the interview', 'warning');
+                announceStatus('Keep this tab active during the interview');
+            }
+        });
+
+        navigator.mediaDevices?.getUserMedia({ audio: true })
+            .then(() => {
+                console.log('Microphone permission granted');
+            })
+            .catch((error) => {
+                console.warn('Microphone permission denied:', error);
+                showNotification('Please allow microphone access for the interview', 'warning');
+                announceStatus('Please allow microphone access for the interview');
+            });
+    </script>
+</body>
+</html>
